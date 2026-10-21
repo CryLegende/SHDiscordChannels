@@ -1,0 +1,26 @@
+discord:
+  token: "CHANGE_ME"
+  # ID du serveur Discord (Guild ID)
+  guild-id: "266313038389313537"
+
+# Attention : Discord limite les changements de nom de channel (Rate Limit).
+# Il est conseillé de ne pas descendre en dessous de 300s (5 minutes) pour être safe
+channels:
+  voteparty:
+    # L'ID du channel vocal à modifier (clic droit -> copier l'identifiant sur Discord)
+    id: "1447046884605562930"
+    # Le texte avec placeholders
+    text: "🎯｜VoteParty: %voteparty_votes_recorded%/%voteparty_votes_required_total%"
+    # Intervalle en secondes
+    update_interval: 300
+
+# online_players:
+#     id: "112233445566778899"
+#     text: "Joueurs: %server_online%/%server_max_players%"
+#     update_interval: 300
+
+#  tps_stats:
+#    id: "112233445566778899"
+#    text: "TPS: %server_tps_1%"
+#    update_interval: 60
+
