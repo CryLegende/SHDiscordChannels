@@ -8,11 +8,14 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.bukkit.Bukkit;
 
 import java.util.Collections;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class DiscordManager {
 
     private final SHDiscordChannels plugin;
     private JDA jda;
+    private final Set<String> pendingRenames = ConcurrentHashMap.newKeySet();
 
     public DiscordManager(SHDiscordChannels plugin, String token) {
         this.plugin = plugin;
@@ -47,13 +50,23 @@ public class DiscordManager {
             return;
         }
 
+        // Un seul renommage en attente par channel : Discord n'en autorise que 2 par 10 minutes, JDA met les suivants
+        // en file et le nom en cache ne change qu'à l'exécution, donc chaque tour en ajoutait un, déjà périmé.
+        // Le tour suivant enverra la valeur à jour.
+        if (!pendingRenames.add(channelId)) {
+            return;
+        }
         try {
             // Queue l'action pour que JDA gère le rate limit interne
             channel.getManager().setName(newName).queue(
-                success -> { /* Success silencieux */ },
-                error -> plugin.getLogger().warning("Impossible de renommer le channel " + channelId + ": " + error.getMessage())
+                success -> pendingRenames.remove(channelId),
+                error -> {
+                    pendingRenames.remove(channelId);
+                    plugin.getLogger().warning("Impossible de renommer le channel " + channelId + ": " + error.getMessage());
+                }
             );
         } catch (Exception e) {
+            pendingRenames.remove(channelId);
             e.printStackTrace();
         }
     }
